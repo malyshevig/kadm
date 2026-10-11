@@ -56,7 +56,7 @@ class TgScanner:
             name = d.title
 
         r = self.dialog_db.create_dialog_if_not_exists(channel_id, name)
-        offset = r["msg_offset"]
+        offset = r.msg_offset
 
         msgs = await self.client.get_messages(d, reverse=True, filter=types.InputMessagesFilterDocument,
                                               offset_id=offset, limit=1000)

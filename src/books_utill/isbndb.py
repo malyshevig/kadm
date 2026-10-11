@@ -31,7 +31,7 @@ class IsbnDb(PostgresDb):
         year: Optional[int] = None,
         publisher: Optional[str] = None,
         file_uuid: Optional[UuidLike] = None,
-    ) -> dict[str, Any]:
+    ) -> Isbn:
         if file_uuid is None:
             raise ValueError("file_uuid is required")
 
@@ -39,7 +39,8 @@ class IsbnDb(PostgresDb):
         with self.session() as session:
             existing = session.get(Isbn, isbn)
             if existing is not None:
-                return existing.to_dict()
+                session.expunge(existing)
+                return existing
 
             row = Isbn(
                 isbn=isbn,
@@ -51,20 +52,27 @@ class IsbnDb(PostgresDb):
             )
             session.add(row)
             session.flush()
-            return row.to_dict()
+            session.expunge(row)
+            return row
 
-    def get_by_isbn(self, isbn: str) -> Optional[dict[str, Any]]:
+    def get_by_isbn(self, isbn: str) -> Optional[Isbn]:
         with self.session() as session:
             row = session.get(Isbn, isbn)
-            return row.to_dict() if row else None
+            if row is None:
+                return None
+            session.expunge(row)
+            return row
 
-    def get_by_file_uuid(self, file_uuid: UuidLike) -> list[dict[str, Any]]:
+    def get_by_file_uuid(self, file_uuid: UuidLike) -> list[Isbn]:
         file_uuid = uuid.UUID(str(file_uuid))
         with self.session() as session:
             rows = session.scalars(
                 select(Isbn).where(Isbn.file_uuid == file_uuid)
             ).all()
-            return [row.to_dict() for row in rows]
+            result = list(rows)
+            for row in result:
+                session.expunge(row)
+            return result
 
     def check_if_exists(self, isbn: str) -> bool:
         with self.session() as session:
