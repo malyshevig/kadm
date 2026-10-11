@@ -79,7 +79,9 @@ class TgScanner:
                 else:
                     logger.info("Downloading")
                     file_path = await self.client.download_media(msg, download_dir)
-                    self.file_db.create_file(file_id, file_name, file_path, file_desc)
+                    self.file_db.create_file(
+                        file_id, file_name, file_path, file_desc, tg_file_id=str(file_id)
+                    )
                     # self.processor.process(file_id, file_name, file_path)
 
             if offset < offset_id:

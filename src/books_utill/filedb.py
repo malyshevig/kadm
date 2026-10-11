@@ -22,6 +22,7 @@ class FileDb(PostgresDb):
         file_path: Optional[str],
         file_desc: Optional[str] = None,
         src: str = "tg",
+        tg_file_id: Optional[str] = None,
     ) -> File:
         with self.session() as session:
             existing = session.get(File, file_id)
@@ -31,6 +32,7 @@ class FileDb(PostgresDb):
 
             file_row = File(
                 id=file_id,
+                tg_file_id=tg_file_id,
                 name=name,
                 file_path=file_path,
                 description=file_desc,

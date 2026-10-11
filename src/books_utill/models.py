@@ -36,6 +36,7 @@ class File(Base):
         unique=True,
         default=uuid4,
     )
+    tg_file_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     file_path: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -46,6 +47,7 @@ class File(Base):
         return {
             "id": self.id,
             "uuid": str(self.uuid),
+            "tg_file_id": self.tg_file_id,
             "name": self.name,
             "file_path": self.file_path,
             "description": self.description,
