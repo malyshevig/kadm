@@ -1,42 +1,62 @@
 import logging
+from typing import Any, Optional
 
-from books_utill.dbutil import DbUtil
+from books_utill.postgres_db import PostgresDb
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s",
+)
 
-class DialogDb (DbUtil):
 
+class DialogDb(PostgresDb):
     def __init__(self):
         super().__init__("books")
 
-    def create_dialog_if_not_exists(self, channel_id, name, offset=0):
-         q = "select channel_id, name, msg_offset from dialog "
-         q+= "where channel_id = %s"
-         r = self.execute_query_select_dict(q,(channel_id,) )
+    def create_dialog_if_not_exists(
+        self,
+        channel_id: int,
+        name: str,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        existing = self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE channel_id = :channel_id",
+            {"channel_id": channel_id},
+        )
+        if existing is not None:
+            return existing
 
-         if r is None or len(r) == 0:
-            q = ("insert into dialog (channel_id, name , msg_offset) values (%s, %s, %s) "+
-                 "returning channel_id, name, msg_offset")
-            res = self.execute_query_update_and_select(q, (channel_id, name, offset))
-            return res[0]
-         else:
-            return r[0]
+        rows = self.execute_returning(
+            "INSERT INTO dialog (channel_id, name, msg_offset) "
+            "VALUES (:channel_id, :name, :msg_offset) "
+            "RETURNING channel_id, name, msg_offset",
+            {
+                "channel_id": channel_id,
+                "name": name,
+                "msg_offset": offset,
+            },
+        )
+        return rows[0]
 
-    def update_dialog_offset(self, channel_id, offset):
-        q = "update dialog set msg_offset = %s where channel_id = %s"
-        self.execute_query_update(q, (offset,channel_id))
+    def update_dialog_offset(self, channel_id: int, offset: int) -> int:
+        return self.execute(
+            "UPDATE dialog SET msg_offset = :msg_offset "
+            "WHERE channel_id = :channel_id",
+            {"msg_offset": offset, "channel_id": channel_id},
+        )
 
-    def create_file(self, id, name, file_path, file_desc, src="tg"):
-            q = " insert into file (id, name, file_path, description, src ) "
-            q+= " values (%s, %s, %s,%s, %s)"
-            q+="  returning id, name, file_path, description, src"
+    def get_dialog(self, channel_id: int) -> Optional[dict[str, Any]]:
+        return self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE channel_id = :channel_id",
+            {"channel_id": channel_id},
+        )
 
-            self.execute_query_update_and_select(q, (id, name, file_path, file_desc, src,))
-            return False, None
-
-    def check_if_exists(self, id) -> bool:
-        q = "select id, name from file "
-        q += "where id = %s"
-        r = self.execute_query_select_dict(q, (id,))
-        return r is not None and len(r) > 0
+    def find_by_name(self, name: str) -> Optional[dict[str, Any]]:
+        return self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE name = :name",
+            {"name": name},
+        )
