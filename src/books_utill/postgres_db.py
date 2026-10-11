@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_HOST = "localhost"
+DEFAULT_HOST = "gek"
 DEFAULT_PORT = 5432
-DEFAULT_USER = "postgres"
+DEFAULT_USER = "ilia"
 DEFAULT_PASSWORD = "begemot"
 
 

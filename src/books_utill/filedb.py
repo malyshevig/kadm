@@ -30,13 +30,8 @@ class FileDb(PostgresDb):
         tg_file_id: Optional[str] = None,
     ) -> File:
         with self.session() as session:
-            existing = session.get(File, file_id)
-            if existing is not None:
-                session.expunge(existing)
-                return existing
-
             file_row = File(
-                id=file_id,
+
                 tg_file_id=tg_file_id,
                 name=name,
                 file_path=file_path,
@@ -66,6 +61,7 @@ class FileDb(PostgresDb):
                 return None
             session.expunge(file_row)
             return file_row
+
 
     def get_file_by_uuid(self, file_uuid: UuidLike) -> Optional[File]:
         file_uuid = uuid.UUID(str(file_uuid))

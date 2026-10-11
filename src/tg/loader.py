@@ -4,20 +4,23 @@ import logging
 
 from telethon import TelegramClient
 from telethon.tl import types
+from telethon import functions
+
 
 
 from books_utill.DialogDb import DialogDb
 from books_utill.filedb import FileDb
+from books_utill.models import File
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s")
 
 api_id = 29093757
 api_hash = "0d64c0d51b514dd14b4efad572cbb5db"
-download_dir = "d:/books/download"
+download_dir = "/home/ilia/local/books"
 
 
-class TgScanner:
+class TgLoader:
     def __init__(self, client:TelegramClient):
         self.client = client
         self.dialog_db = DialogDb()
@@ -29,6 +32,7 @@ class TgScanner:
             return False
 
         name = name.lower()
+        logger.info(f"check file {name}")
         return  name.endswith("pdf") or name.endswith("epub") or name.endswith("fb2")
 
 
@@ -76,11 +80,11 @@ class TgScanner:
 
                 tg_file_id = str(file_id)
                 if self.file_db.check_if_exists(tg_file_id):
-                    logger.info(f"File with id {file_id} exists received nane = {file_name}")
+                    logger.info(f"File with id {file_id} exists received name = {file_name}")
                 else:
                     logger.info("Downloading")
                     file_path = await self.client.download_media(msg, download_dir)
-                    self.file_db.create_file(
+                    file:File = self.file_db.create_file(
                         file_id, file_name, file_path, file_desc, tg_file_id=tg_file_id
                     )
                     # self.processor.process(file_id, file_name, file_path)
@@ -131,7 +135,7 @@ class TgScanner:
 
 
     async def get_channels(self, folder_names: set):
-        res = await self.client(types.GetDialogFiltersRequest())
+        res = await self.client(functions.messages.GetDialogFiltersRequest())
         folders = res.filters
         if folders is None:
             return []
@@ -156,8 +160,9 @@ class TgScanner:
 
 
 async def main ():
-    client = TelegramClient("im", api_id, api_hash)
-    scanner = TgScanner(client)
+    client = TelegramClient("ilia.malysh", api_id, api_hash, lang_code="ru",
+                            system_lang_code="ru-RU")
+    scanner = TgLoader(client)
 
     async with client:
         await scanner()

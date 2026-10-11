@@ -3,7 +3,12 @@ name = "kadm"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
+    "isbnlib>=3.10.14",
+    "isbntools>=4.3.29",
+    "prefect>=3.8.8",
     "psycopg2-binary>=2.9.13",
+    "pypdf2>=3.0.1",
+    "retry-on-exceptions>=0.1",
     "sqlalchemy>=2.0.0",
     "telethon>=1.45.0",
 ]

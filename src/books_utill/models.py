@@ -42,6 +42,7 @@ class File(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     src: Mapped[str] = mapped_column(String, nullable=False, default="tg")
     process_isbn: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    tg_file_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -53,6 +54,7 @@ class File(Base):
             "description": self.description,
             "src": self.src,
             "process_isbn": self.process_isbn,
+            "tg_file_id": self.tg_file_id,
         }
 
 
