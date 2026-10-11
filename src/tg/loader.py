@@ -7,6 +7,7 @@ from telethon.tl import types
 
 
 from books_utill.DialogDb import DialogDb
+from books_utill.filedb import FileDb
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s")
@@ -19,7 +20,8 @@ download_dir = "d:/books/download"
 class TgScanner:
     def __init__(self, client:TelegramClient):
         self.client = client
-        self.db = DialogDb()
+        self.dialog_db = DialogDb()
+        self.file_db = FileDb()
        # self.processor = BookProcessor()
 
     def to_download(self, name:str)-> bool:
@@ -53,7 +55,7 @@ class TgScanner:
             channel_id = d.id
             name = d.title
 
-        r = self.db.create_dialog_if_not_exists(channel_id,name)
+        r = self.dialog_db.create_dialog_if_not_exists(channel_id, name)
         offset = r["msg_offset"]
 
         msgs = await self.client.get_messages(d, reverse=True, filter=types.InputMessagesFilterDocument,
@@ -72,16 +74,16 @@ class TgScanner:
                             f"file_name={file_mime_type} "+
                             f"file_id={file_id} file_name={file_name}")
 
-                if self.db.check_if_exists(file_id):
+                if self.file_db.check_if_exists(file_id):
                     logger.info(f"File with id {file_id} exists received nane = {file_name}")
                 else:
                     logger.info("Downloading")
                     file_path = await self.client.download_media(msg, download_dir)
-                    self.db.create_file(file_id, file_name, file_path, file_desc)
+                    self.file_db.create_file(file_id, file_name, file_path, file_desc)
                     # self.processor.process(file_id, file_name, file_path)
 
             if offset < offset_id:
-                self.db.update_dialog_offset(channel_id, offset_id)
+                self.dialog_db.update_dialog_offset(channel_id, offset_id)
             await asyncio.sleep(5)
 
 
