@@ -1,9 +1,6 @@
 import logging
 from typing import Any, Optional
 
-from sqlalchemy import select
-
-from books_utill.models import Dialog
 from books_utill.postgres_db import PostgresDb
 
 logger = logging.getLogger(__name__)
@@ -23,34 +20,43 @@ class DialogDb(PostgresDb):
         name: str,
         offset: int = 0,
     ) -> dict[str, Any]:
-        with self.session() as session:
-            dialog = session.get(Dialog, channel_id)
-            if dialog is None:
-                dialog = Dialog(
-                    channel_id=channel_id,
-                    name=name,
-                    msg_offset=offset,
-                )
-                session.add(dialog)
-                session.flush()
-            return dialog.to_dict()
+        existing = self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE channel_id = :channel_id",
+            {"channel_id": channel_id},
+        )
+        if existing is not None:
+            return existing
+
+        rows = self.execute_returning(
+            "INSERT INTO dialog (channel_id, name, msg_offset) "
+            "VALUES (:channel_id, :name, :msg_offset) "
+            "RETURNING channel_id, name, msg_offset",
+            {
+                "channel_id": channel_id,
+                "name": name,
+                "msg_offset": offset,
+            },
+        )
+        return rows[0]
 
     def update_dialog_offset(self, channel_id: int, offset: int) -> int:
-        with self.session() as session:
-            dialog = session.get(Dialog, channel_id)
-            if dialog is None:
-                return 0
-            dialog.msg_offset = offset
-            return 1
+        return self.execute(
+            "UPDATE dialog SET msg_offset = :msg_offset "
+            "WHERE channel_id = :channel_id",
+            {"msg_offset": offset, "channel_id": channel_id},
+        )
 
     def get_dialog(self, channel_id: int) -> Optional[dict[str, Any]]:
-        with self.session() as session:
-            dialog = session.get(Dialog, channel_id)
-            return dialog.to_dict() if dialog else None
+        return self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE channel_id = :channel_id",
+            {"channel_id": channel_id},
+        )
 
     def find_by_name(self, name: str) -> Optional[dict[str, Any]]:
-        with self.session() as session:
-            dialog = session.scalars(
-                select(Dialog).where(Dialog.name == name).limit(1)
-            ).first()
-            return dialog.to_dict() if dialog else None
+        return self.select_one(
+            "SELECT channel_id, name, msg_offset FROM dialog "
+            "WHERE name = :name",
+            {"name": name},
+        )
