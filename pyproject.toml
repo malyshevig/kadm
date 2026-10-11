@@ -1,0 +1,8 @@
+[project]
+name = "kadm"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "psycopg2-binary>=2.9.13",
+    "telethon>=1.45.0",
+]
