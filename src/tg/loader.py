@@ -74,13 +74,14 @@ class TgScanner:
                             f"file_name={file_mime_type} "+
                             f"file_id={file_id} file_name={file_name}")
 
-                if self.file_db.check_if_exists(file_id):
+                tg_file_id = str(file_id)
+                if self.file_db.check_if_exists(tg_file_id):
                     logger.info(f"File with id {file_id} exists received nane = {file_name}")
                 else:
                     logger.info("Downloading")
                     file_path = await self.client.download_media(msg, download_dir)
                     self.file_db.create_file(
-                        file_id, file_name, file_path, file_desc, tg_file_id=str(file_id)
+                        file_id, file_name, file_path, file_desc, tg_file_id=tg_file_id
                     )
                     # self.processor.process(file_id, file_name, file_path)
 

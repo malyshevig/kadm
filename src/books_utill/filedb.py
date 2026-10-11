@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 
+from sqlalchemy import select
+
 from books_utill.models import File
 from books_utill.postgres_db import PostgresDb
 
@@ -43,9 +45,14 @@ class FileDb(PostgresDb):
             session.expunge(file_row)
             return file_row
 
-    def check_if_exists(self, file_id: int) -> bool:
+    def check_if_exists(self, tg_file_id: str) -> bool:
         with self.session() as session:
-            return session.get(File, file_id) is not None
+            return (
+                session.scalars(
+                    select(File.id).where(File.tg_file_id == tg_file_id).limit(1)
+                ).first()
+                is not None
+            )
 
     def get_file_by_id(self, file_id: int) -> Optional[File]:
         with self.session() as session:
