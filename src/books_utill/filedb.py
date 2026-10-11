@@ -55,6 +55,7 @@ class FileDb(PostgresDb):
                 is not None
             )
 
+
     def get_file_by_id(self, file_id: int) -> Optional[File]:
         with self.session() as session:
             file_row = session.get(File, file_id)
