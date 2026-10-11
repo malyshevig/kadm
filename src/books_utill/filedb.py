@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional
+from typing import Optional
 
 from books_utill.models import File
 from books_utill.postgres_db import PostgresDb
@@ -22,11 +22,12 @@ class FileDb(PostgresDb):
         file_path: Optional[str],
         file_desc: Optional[str] = None,
         src: str = "tg",
-    ) -> dict[str, Any]:
+    ) -> File:
         with self.session() as session:
             existing = session.get(File, file_id)
             if existing is not None:
-                return existing.to_dict()
+                session.expunge(existing)
+                return existing
 
             file_row = File(
                 id=file_id,
@@ -37,23 +38,20 @@ class FileDb(PostgresDb):
             )
             session.add(file_row)
             session.flush()
-            return file_row.to_dict()
+            session.expunge(file_row)
+            return file_row
 
     def check_if_exists(self, file_id: int) -> bool:
         with self.session() as session:
             return session.get(File, file_id) is not None
 
-    def get_file_by_id(self, file_id: int) -> Optional[dict[str, Any]]:
+    def get_file_by_id(self, file_id: int) -> Optional[File]:
         with self.session() as session:
             file_row = session.get(File, file_id)
             if file_row is None:
                 return None
-            return {
-                "id": file_row.id,
-                "uuid": str(file_row.uuid),
-                "name": file_row.name,
-                "file_path": file_row.file_path,
-            }
+            session.expunge(file_row)
+            return file_row
 
     def update_isbn_processed(self, file_id: int, isbn_status: str) -> int:
         with self.session() as session:
