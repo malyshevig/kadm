@@ -45,6 +45,7 @@ class FileDb(PostgresDb):
             session.expunge(file_row)
             return file_row
 
+
     def check_if_exists(self, tg_file_id: str) -> bool:
         with self.session() as session:
             return (
