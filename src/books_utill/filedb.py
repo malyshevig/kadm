@@ -1,10 +1,13 @@
 import logging
-from typing import Optional
+import uuid
+from typing import Optional, Union
 
 from sqlalchemy import select
 
 from books_utill.models import File
 from books_utill.postgres_db import PostgresDb
+
+UuidLike = Union[uuid.UUID, str]
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -59,6 +62,17 @@ class FileDb(PostgresDb):
     def get_file_by_id(self, file_id: int) -> Optional[File]:
         with self.session() as session:
             file_row = session.get(File, file_id)
+            if file_row is None:
+                return None
+            session.expunge(file_row)
+            return file_row
+
+    def get_file_by_uuid(self, file_uuid: UuidLike) -> Optional[File]:
+        file_uuid = uuid.UUID(str(file_uuid))
+        with self.session() as session:
+            file_row = session.scalars(
+                select(File).where(File.uuid == file_uuid).limit(1)
+            ).first()
             if file_row is None:
                 return None
             session.expunge(file_row)
