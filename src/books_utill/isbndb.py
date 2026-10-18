@@ -70,7 +70,7 @@ class IsbnDb(PostgresDb):
                     authors=None,
                     year=None,
                     publisher=None,
-                    file_uuid=uuid.UUID(str(item.file_uuid)),
+                    file_uuid=uuid.UUID(str(file_uuid)),
                 )
                 session.add(row)
                 session.flush()
