@@ -5,6 +5,8 @@ from books_utill.filedb import FileDb
 from books_utill.models import File
 from isbn.isbnutil import extract_isbns, ISBNExtractor
 
+from src.books_utill.isbndb import IsbnDb
+
 
 @task
 def extract_isbn(file_uuid):
@@ -12,16 +14,26 @@ def extract_isbn(file_uuid):
     file: File = file_manager.get_file_by_uuid(file_uuid)
     if file:
         isbn_set = ISBNExtractor ().get_isbn_set(file.file_path)
+        IsbnDb().save_isbns(isbn_set)
 
-    extract_isbns()
     return
 
 @task
 def get_isbn_info(file_uuid):
-    return
+    isbn_set = IsbnDb().get_isbns(file_uuid)
+    for isbn in isbn_set:
+        isbn_info= ISBNExtractor.get_book_info(isbn)
+        IsbnDb.
+    pass
+
+
 
 @task
 def index_file(file_uuid):
+    pass
+
+@task
+def index_to_rag(file_uuid):
     return
 
 
@@ -30,5 +42,6 @@ def process_book(file_uuid):
      extract_isbn(file_uuid)
      get_isbn_info(file_uuid)
      index_file (file_uuid)
+     index_to_rag(file_uuid)
 
 

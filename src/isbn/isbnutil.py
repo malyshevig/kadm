@@ -15,21 +15,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(fil
 
 from retry import retry
 
-class IsbnServiceException(ISBNLibException):
-    def __init__(self, msg, errors):
-        super().__init__(msg)
-
-        self.errors = errors
-
-    def get_errors(self):
-        return self.errors
-
-
-    def __str__(self):
-        return f"{super().__str__()} {self.errors}"
-
-    def __repr__(self):
-        return self.__str__()
 
 def clean_isbn_string(isbn_str: str) -> Optional[str]:
     """
@@ -255,7 +240,7 @@ class ISBNExtractor:
         except ISBNLibException as e:
             logger.exception(e)
             if str(e).find("429")>0:
-                logger.info("Got Error 429, sleep for 3600 sec")
+                logger.error("Got Error 429, sleep for 3600 sec")
                 time.sleep(3600)
             raise e
 

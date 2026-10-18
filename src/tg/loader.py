@@ -12,6 +12,8 @@ from books_utill.DialogDb import DialogDb
 from books_utill.filedb import FileDb
 from books_utill.models import File
 
+from src.pref.book_processor import BookProcessor
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s")
 
@@ -25,7 +27,7 @@ class TgLoader:
         self.client = client
         self.dialog_db = DialogDb()
         self.file_db = FileDb()
-       # self.processor = BookProcessor()
+        self.processor = BookProcessor()
 
     def to_download(self, name:str)-> bool:
         if name is None:
@@ -39,7 +41,6 @@ class TgLoader:
     async def __call__(self):
         logger.info("Scan started")
         await self.scan()
-
 
     def get_files(self, doc:types.Document)-> list:
          if  hasattr(doc, "attributes"):
@@ -87,7 +88,7 @@ class TgLoader:
                     file:File = self.file_db.create_file(
                         file_id, file_name, file_path, file_desc, tg_file_id=tg_file_id
                     )
-                    # self.processor.process(file_id, file_name, file_path)
+                    self.processor.process_file(file.uuid)
 
             if offset < offset_id:
                 self.dialog_db.update_dialog_offset(channel_id, offset_id)
