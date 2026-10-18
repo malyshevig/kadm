@@ -8,12 +8,11 @@ from typing import Optional
 import PyPDF2
 import isbnlib
 from isbnlib import ISBNLibException
-from isbntools.app import *
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s")
 
-from retry import retry
 
 
 def clean_isbn_string(isbn_str: str) -> Optional[str]:

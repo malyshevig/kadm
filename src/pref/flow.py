@@ -11,7 +11,7 @@ from src.books_utill.isbndb import IsbnDb
 @task
 def extract_isbn(file_uuid):
     file_manager = FileDb ()
-    file: File = file_manager.get_file_by_uuid(file_uuid)
+    file: File|None = file_manager.get_file_by_uuid(file_uuid)
     if file:
         isbn_set = ISBNExtractor ().get_isbn_set(file.file_path)
         IsbnDb().save_isbns(isbn_set)
@@ -21,7 +21,7 @@ def extract_isbn(file_uuid):
 
 @task
 def get_isbn_info(file_uuid):
-    isbn_set = IsbnDb().get_isbns(file_uuid)
+    isbn_set = IsbnDb().get_by_file_uuid(file_uuid)
     for isbn in isbn_set:
         isbn_info= ISBNExtractor.get_book_info(isbn)
         IsbnDb.save_isbn_info (isbn_info)
@@ -43,7 +43,7 @@ from prefect.filesystems import LocalFileSystem
 
 @flow(
     name="process_book",
-    result_storage=LocalFileSystem(basepath="./prefect_results"),
+    result_storage="local-file-system/books-storage",
     persist_result=True,
 )
 def process_book(file_uuid):
@@ -51,5 +51,7 @@ def process_book(file_uuid):
      get_isbn_info(file_uuid)
      index_file (file_uuid)
      index_to_rag(file_uuid)
+
+
 
 

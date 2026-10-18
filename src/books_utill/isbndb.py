@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import Any, Optional, Sequence, Union
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from books_utill.models import Base, Isbn
 from books_utill.postgres_db import PostgresDb
@@ -111,3 +111,15 @@ class IsbnDb(PostgresDb):
     def check_if_exists(self, isbn: str) -> bool:
         with self.session() as session:
             return session.get(Isbn, isbn) is not None
+
+    def save_isbn_info(self,  isbn_info):
+        with self.session() as session:
+            stmt = (
+                update("isbn").
+                where("isbn.isbn" == isbn_info["isbn"]).
+                values(fullname="Patrick the Star")
+            )
+            return row
+        pass
+
+

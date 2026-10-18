@@ -42,8 +42,17 @@ class File(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     src: Mapped[str] = mapped_column(String, nullable=False, default="tg")
     process_isbn: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    tg_file_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
     def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
@@ -54,7 +63,9 @@ class File(Base):
             "description": self.description,
             "src": self.src,
             "process_isbn": self.process_isbn,
-            "tg_file_id": self.tg_file_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+
         }
 
 
