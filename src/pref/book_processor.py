@@ -10,11 +10,12 @@ class BookProcessor:
     def __init__(self, deployment):
         self.deployment_name = deployment
 
+
     def process_file (self, uuid):
         flow_run = run_deployment(
             name=self.deployment_name,
             parameters={"uuid": uuid},
             timeout=0,  # timeout=0 означает "не ждать завершения, вернуть управление сразу"
-            tags=["process_file"]  # Опциональные теги для фильтрации в UI
+            tags=["process_book"]  # Опциональные теги для фильтрации в UI
         )
         logger.info(f"started flow {flow_run}")
