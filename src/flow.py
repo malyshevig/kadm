@@ -24,7 +24,7 @@ def extract_isbn(file_uuid):
 def get_isbn_info(file_uuid):
     isbn_set = IsbnDb().get_by_file_uuid(file_uuid)
     for isbn in isbn_set:
-        isbn_info= ISBNExtractor.get_book_info(isbn)
+        isbn_info= ISBNExtractor().get_book_info(isbn)
         IsbnDb.save_isbn_info (isbn_info)
 
     return isbn_set
