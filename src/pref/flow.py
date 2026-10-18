@@ -22,6 +22,7 @@ def extract_isbn(file_uuid):
 @task
 def get_isbn_info(file_uuid):
     isbn_set = IsbnDb().get_by_file_uuid(file_uuid)
+    get_run_logger().info(f"isbn_set ={isbn_set}")
     for isbn in isbn_set:
         isbn_info= ISBNExtractor.get_book_info(isbn)
         IsbnDb.save_isbn_info (isbn_info)
