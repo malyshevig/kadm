@@ -55,7 +55,7 @@ class IsbnDb(PostgresDb):
             session.expunge(row)
             return row
 
-    def save_isbns(self, items: Sequence[Isbn]) -> list[Isbn]:
+    def save_isbns(self, file_uuid:str, items: Sequence[Isbn]) -> list[Isbn]:
         """Save a list of Isbn rows; existing ISBN keys are left unchanged."""
         if not items:
             return []
@@ -63,23 +63,13 @@ class IsbnDb(PostgresDb):
         result: list[Isbn] = []
         with self.session() as session:
             for item in items:
-                if not item.isbn:
-                    raise ValueError("isbn is required")
-                if item.file_uuid is None:
-                    raise ValueError(f"file_uuid is required for isbn={item.isbn}")
-
-                existing = session.get(Isbn, item.isbn)
-                if existing is not None:
-                    session.expunge(existing)
-                    result.append(existing)
-                    continue
 
                 row = Isbn(
-                    isbn=item.isbn,
-                    title=item.title,
-                    authors=list(item.authors or []),
-                    year=item.year,
-                    publisher=item.publisher,
+                    isbn=item,
+                    title=None,
+                    authors=None,
+                    year=None,
+                    publisher=None,
                     file_uuid=uuid.UUID(str(item.file_uuid)),
                 )
                 session.add(row)
