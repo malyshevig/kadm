@@ -60,6 +60,8 @@ class IsbnDb(PostgresDb):
         if not items:
             return []
 
+        logger.info(f"Saving {len(items)} ISBNs")
+
         result: list[Isbn] = []
         with self.session() as session:
             for item in items:
@@ -72,6 +74,7 @@ class IsbnDb(PostgresDb):
                     publisher=None,
                     file_uuid=uuid.UUID(str(file_uuid)),
                 )
+                logger.info(f"Saving {row}")
                 session.add(row)
                 session.flush()
                 session.expunge(row)
