@@ -15,7 +15,7 @@ def extract_isbn(file_uuid):
     if file:
         isbn_set = ISBNExtractor ().get_isbn_set(file.file_path)
         get_run_logger().info(isbn_set)
-        IsbnDb().save_isbns(isbn_set)
+        IsbnDb().save_isbns(file_uuid, isbn_set)
         return isbn_set
     else:
         raise Exception (f"Can't open file {file_uuid}")
