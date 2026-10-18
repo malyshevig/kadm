@@ -11,8 +11,8 @@ class BookProcessor:
         self.deployment_name = deployment
 
 
-    def process_file (self, uuid):
-        flow_run = run_deployment(
+    async def process_file (self, uuid):
+        flow_run = await run_deployment(
             name=f"process_book/{self.deployment_name}",
             parameters={"file_uuid": uuid},
             timeout=0,  # timeout=0 означает "не ждать завершения, вернуть управление сразу"

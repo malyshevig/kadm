@@ -27,7 +27,7 @@ class TgLoader:
         self.client = client
         self.dialog_db = DialogDb()
         self.file_db = FileDb()
-        self.processor = BookProcessor()
+        self.processor = BookProcessor("default")
 
     def to_download(self, name:str)-> bool:
         if name is None:
@@ -88,7 +88,7 @@ class TgLoader:
                     file:File = self.file_db.create_file(
                         file_id, file_name, file_path, file_desc, tg_file_id=tg_file_id
                     )
-                    self.processor.process_file(file.uuid)
+                    await self.processor.process_file(file.uuid)
 
             if offset < offset_id:
                 self.dialog_db.update_dialog_offset(channel_id, offset_id)
