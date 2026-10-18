@@ -17,7 +17,7 @@ if __name__ == "__main__":
     from prefect_github import GitHubRepository
 
     storage = GitHubRepository(
-        repository="https://github.com/malyshevig/kadm.git",
+        repository_url="https://github.com/malyshevig/kadm.git",
         reference="main",
     )
     storage.save("github-storage")  # обязательно сохраняем

@@ -1,0 +1,12 @@
+deployments:
+  - name: process-book-deployment
+    entrypoint: src/pref/flow.py:process_book
+    description: "Деплой process_book на сервер"
+    work_pool:
+      name: server-pool  # имя пула, который слушает ваш сервер
+    pull:
+      - prefect.deployments.steps.git_clone:
+          repository: https://github.com/malyshevig/kalm.git
+          branch: main
+      - prefect.deployments.steps.pip_install_requirements:
+          requirements_file: requirements.txt

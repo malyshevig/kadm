@@ -6,7 +6,7 @@ from books_utill.filedb import FileDb
 from books_utill.models import File
 from isbn.isbnutil import extract_isbns, ISBNExtractor
 
-from src.books_utill.isbndb import IsbnDb
+from books_utill.isbndb import IsbnDb
 
 @task
 def extract_isbn(file_uuid):

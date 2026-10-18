@@ -13,9 +13,13 @@ class BookProcessor:
 
     def process_file (self, uuid):
         flow_run = run_deployment(
-            name=self.deployment_name,
-            parameters={"uuid": uuid},
+            name=f"process_book/{self.deployment_name}",
+            parameters={"file_uuid": uuid},
             timeout=0,  # timeout=0 означает "не ждать завершения, вернуть управление сразу"
             tags=["process_book"]  # Опциональные теги для фильтрации в UI
         )
         logger.info(f"started flow {flow_run}")
+
+
+if __name__ == "__main__":
+    BookProcessor("default").process_file("1234")
