@@ -65,6 +65,7 @@ class IsbnDb(PostgresDb):
         result: list[Isbn] = []
         with self.session() as session:
             for item in items:
+ 
 
                 row = Isbn(
                     isbn=item,

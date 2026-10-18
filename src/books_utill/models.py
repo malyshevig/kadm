@@ -72,9 +72,10 @@ class File(Base):
 class Isbn(Base):
     __tablename__ = "isbn"
 
-    isbn: Mapped[str] = mapped_column(String, primary_key=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    authors: Mapped[Any] = mapped_column(JSONB, nullable=False, default=list)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    isbn: Mapped[str] = mapped_column(String, primary_key=False)
+    title: Mapped[str] = mapped_column(String, nullable=True)
+    authors: Mapped[Any] = mapped_column(JSONB, nullable=True, default=list)
     year: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     publisher: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     file_uuid: Mapped[UUID] = mapped_column(
